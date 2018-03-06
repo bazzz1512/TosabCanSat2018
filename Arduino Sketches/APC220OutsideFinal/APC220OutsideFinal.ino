@@ -1,19 +1,18 @@
-/*    Arduino Long Range Wireless Communication using HC-12
-                      Example 01
-   by Dejan Nedelkovski, www.HowToMechatronics.com
+/*    Our APC on the ground station.
+Due to a broken CP2012, we had to connect our APC to an arduino to get the data from our Cansat
 */
 #include <SoftwareSerial.h>
-SoftwareSerial HC12(11,10); // HC-12 TX Pin, HC-12 RX Pin
+SoftwareSerial APC220(11,10); // TX Pin, RX Pin
 void setup() {
   Serial.begin(9600);             // Serial port to computer
-  HC12.begin(9600);
+  APC220.begin(9600);
 }
 void loop() {
-  while (HC12.available()) {        // If HC-12 has data
-    Serial.write(HC12.read());      // Send the data to Serial monitor
+  while (APC220.available()) {        // If APC220 has data
+    Serial.write(APC220.read());      // Send the data to Serial monitor
   }
   while (Serial.available()) {      // If Serial monitor has data
-    HC12.write(Serial.read());      // Send that data to HC-12
+    APC220.write(Serial.read());      // Send that data to APC220
   }
   Serial.flush();
 }
