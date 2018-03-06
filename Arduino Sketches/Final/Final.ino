@@ -1,3 +1,5 @@
+//The code uploaded to our Arduino in our CanSat
+//Includes
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
@@ -9,9 +11,10 @@
 #define BMP_MOSI 9 
 #define BMP_CS 8
 
+//Defines
 Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
 SoftwareSerial HC12(3,2); // HC-12 TX Pin, HC-12 RX Pin
- SoftwareSerial apc220(10,11);//TX, RX
+SoftwareSerial apc220(10,11);//TX, RX
 
 void setup() {
   Serial.begin(9600);
@@ -19,7 +22,7 @@ void setup() {
   apc220.begin(9600);
   
   Serial.println(F("BMP280 test"));
-  
+  //BMP startup
   if (!bmp.begin()) {  
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
     while (1);
@@ -28,14 +31,17 @@ void setup() {
 }
 
 void loop() {
-  HC12.listen();
+//HC 12 enable
+ HC12.listen();
   while (HC12.available()){
-    char c = HC12.read();
+   //Send character received by HC12 to Serial and to APC
+   char c = HC12.read();
     Serial.write(c);
     apc220.print(c);
     apc220.flush();
   }
 //  apc220.listen();
+ //
   Serial.println(F("\n"));
     Serial.print(F("Temperature = "));
     Serial.print(bmp.readTemperature());
