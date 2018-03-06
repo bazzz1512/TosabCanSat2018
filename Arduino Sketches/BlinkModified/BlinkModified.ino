@@ -1,8 +1,10 @@
-//pre-define functions
+// Just a small test to see what works and what doesn't with arduino's
+//pre-define stuff
 class LED;
 LED light;
 void initializeLEDLight(LED &Light, int delay);
 
+//Define Led Class
 class LED{
   public: 
   int LEDDelay;
@@ -15,11 +17,11 @@ void setup() {
   initializeLEDLight(light, 10);
 }
 
-// the loop function runs over and over again forever
+
 void loop() {
 Ledloop();
 }
-
+//Define classes
 void Ledloop(){
   SwitchLed();
   light.LEDDelay = light.LEDDelay + 10;
