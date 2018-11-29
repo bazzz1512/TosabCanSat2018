@@ -1,28 +1,31 @@
-//The code uploaded to our Arduino in our CanSat
-//Includes
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BMP280.h>
 #include <SoftwareSerial.h>
 
-#define BMP_SCK 13
+/*#define BMP_SCK 13
 #define BMP_MISO 12
 #define BMP_MOSI 9 
-#define BMP_CS 8
+#define BMP_CS 8*/
 
-//Defines
-Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
+Adafruit_BMP280 bmp; // I2C
 SoftwareSerial HC12(3,2); // HC-12 TX Pin, HC-12 RX Pin
-SoftwareSerial apc220(10,11);//TX, RX
+ SoftwareSerial apc220(8,9);//TX, RX
+
+ char request;
+  String Send;
 
 void setup() {
   Serial.begin(9600);
-  HC12.begin(9600);
+  HC12.begin(1200);
   apc220.begin(9600);
+
+  request = '#';
+  Send = "";
   
   Serial.println(F("BMP280 test"));
-  //BMP startup
+  
   if (!bmp.begin()) {  
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
     while (1);
@@ -31,17 +34,35 @@ void setup() {
 }
 
 void loop() {
-//HC 12 enable
- HC12.listen();
-  while (HC12.available()){
-   //Send character received by HC12 to Serial and to APC
-   char c = HC12.read();
+  HC12.listen();
+  for (int i = 0; i < 2; ){
+    HC12.print(request);
+    Serial.print("Written");
+    Serial.print(request);
+    bool GoOn = true;
+while (GoOn){
+  HC12.listen();
+  if(HC12.available()){
+    char c = HC12.read();
     Serial.write(c);
-    apc220.print(c);
-    apc220.flush();
+    Send += c;
+    if(c == '!'){
+      GoOn = false;
+    }
   }
-//  apc220.listen();
- //
+}
+
+    if (request == '#'){
+      request = '$';
+    }
+    else if(request == '$'){
+      request = '#';
+    }
+    i++;
+    Serial.println();
+    
+  }
+  apc220.listen();
   Serial.println(F("\n"));
     Serial.print(F("Temperature = "));
     Serial.print(bmp.readTemperature());
@@ -71,6 +92,8 @@ void loop() {
     
     apc220.println();
     apc220.flush();
+    apc220.print(Send);
+    Send = "";
     delay(1000);
 }
 

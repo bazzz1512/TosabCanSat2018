@@ -2,21 +2,22 @@
 
 #include <TinyGPS.h>
 
-/* 
-Final code for our GPS tracker
+/* This sample code demonstrates the normal use of a TinyGPS object.
+   It requires the use of SoftwareSerial, and assumes that you have a
+   4800-baud serial GPS device hooked up on pins 4(rx) and 3(tx).
 */
-//Create SoftwareSerial ports
+
 TinyGPS gps;
-SoftwareSerial ss(6, 7); //ss stands for softwareserial and is our direct connection with the gps module
+SoftwareSerial ss(7,6);
 SoftwareSerial HC12(3, 2);
 
 void setup()
 {
   Serial.begin(9600);
-   HC12.begin(9600);
+   HC12.begin(1200);
    ss.begin(9600);
 
-  //Output test sentences to Serial and to HC12
+  
   Serial.print("Simple TinyGPS library v. "); Serial.println(TinyGPS::library_version());
   Serial.println("by Mikal Hart");
   Serial.println();
@@ -33,7 +34,7 @@ ss.listen();
     while (ss.available())
     {
       char c = ss.read();
-      // Serial.write(c); // Raw GPS data
+ //      Serial.write(c); // uncomment this line if you want to see the GPS data flowing
       if (gps.encode(c)) // Did a new valid sentence come in?
         newData = true;
     }
@@ -41,20 +42,21 @@ ss.listen();
 
   if (newData)
   {
-    //Prepare data to be sent with the HC12 
     HC12.listen();
    
     float flat, flon;
     unsigned long age;
     gps.f_get_position(&flat, &flon, &age);
-    HC12.print(F("L= "));
-    Serial.print(F("L= "));
-    HC12.println(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, DEC); //Check if the coordinates are avaible, if so, send them
-    Serial.println(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, DEC);
-    HC12.print(F("B= "));
-    Serial.print(F("B= "));
-    HC12.println(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon,DEC); //check if the coordinates are avaible, if so, send them
-    Serial.println(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, DEC);
+    HC12.print(F("GPS3("));
+    Serial.print(F("("));
+    HC12.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, DEC);
+    Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, DEC);
+    HC12.print(F(" , "));
+    Serial.print(F(" , "));
+    HC12.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon,DEC);
+    Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, DEC);
+    HC12.println(F(")☺"));
+    Serial.println(F(")☺"));
     Serial.println();
     HC12.flush();
   }
